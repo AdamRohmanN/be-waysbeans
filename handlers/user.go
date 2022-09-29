@@ -23,8 +23,9 @@ func HandlerUser(UserRepository repositories.UserRepository) *handlerUser {
 
 func convertResponseUser(u models.User) userdto.UserResponse {
 	return userdto.UserResponse{
-		Name:  u.Name,
-		Email: u.Email,
+		Name:    u.Name,
+		Email:   u.Email,
+		Profile: u.Profile,
 	}
 }
 
