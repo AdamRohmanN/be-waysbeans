@@ -3,18 +3,20 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"waysbeans/database"
+	"waysbeans/pkg/mysql"
+	"waysbeans/routes"
 
 	"github.com/gorilla/mux"
 )
 
 func main() {
-	r := mux.NewRouter()
+	mysql.DatabaseInit()
 
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("Hello World!"))
-	}).Methods("GET")
+	database.RunMigration()
+
+	r := mux.NewRouter()
+	routes.RouteInit(r.PathPrefix("/api/v1").Subrouter())
 
 	port := "localhost:5000"
 	fmt.Println("server running on " + port)
