@@ -8,3 +8,4 @@ go get github.com/go-playground/validator/v10 <br>
 - don't forget database/migration to migrate the tables <br>
 - and routes to initialize router <br>
 - repositories before handlers <br>
+- for many to many, needed gorm:"-" in the table models & table relations <br>

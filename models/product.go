@@ -11,7 +11,7 @@ type Product struct {
 	Stock      int          `json:"stock" gorm:"type: int"`
 	UserId     int          `json:"user_id"`
 	User       UserRelation `json:"user"`
-	CategoryId []int        `json:"category_id"`
+	CategoryId []int        `json:"category_id" gorm:"-"`
 	Category   []Category   `json:"categories" gorm:"many2many:product_categories"`
 	CreatedAt  time.Time    `json:"created_at"`
 	UpdatedAt  time.Time    `json:"updated_at"`
@@ -24,9 +24,9 @@ type ProductRelation struct {
 	Desc       string     `json:"desc"`
 	Price      int        `json:"price"`
 	Stock      int        `json:"stock"`
-	UserId     int        `json:"-"`
-	CategoryId []int      `json:"-"`
-	Category   []Category `json:"categories"`
+	UserId     int        `json:"user_id"`
+	CategoryId []int      `json:"-" gorm:"-"`
+	Category   []Category `json:"categories" gorm:"many2many:product_categories"`
 }
 
 func (ProductRelation) TableName() string { return "products" }
