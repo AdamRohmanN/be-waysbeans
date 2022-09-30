@@ -26,6 +26,7 @@ func convertResponseUser(u models.User) userdto.UserResponse {
 		Name:    u.Name,
 		Email:   u.Email,
 		Profile: u.Profile,
+		Product: u.Product,
 	}
 }
 
