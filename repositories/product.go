@@ -18,14 +18,14 @@ func RepositoryProduct(db *gorm.DB) *repository {
 
 func (r *repository) FindProducts() ([]models.Product, error) {
 	var products []models.Product
-	err := r.db.Preload("User").Find(&products).Error
+	err := r.db.Preload("User").Preload("Category").Find(&products).Error
 
 	return products, err
 }
 
 func (r *repository) GetProduct(Id int) (models.Product, error) {
 	var product models.Product
-	err := r.db.Preload("User").First(&product, Id).Error
+	err := r.db.Preload("User").Preload("Category").First(&product, Id).Error
 
 	return product, err
 }

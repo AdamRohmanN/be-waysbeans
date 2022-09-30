@@ -23,12 +23,13 @@ func HandlerProduct(ProductRepository repositories.ProductRepository) *handlerPr
 
 func convertResponseProduct(u models.Product) productdto.ProductResponse {
 	return productdto.ProductResponse{
-		Image: u.Image,
-		Name:  u.Name,
-		Desc:  u.Desc,
-		Price: u.Price,
-		Stock: u.Stock,
-		User:  u.User,
+		Image:    u.Image,
+		Name:     u.Name,
+		Desc:     u.Desc,
+		Price:    u.Price,
+		Stock:    u.Stock,
+		User:     u.User,
+		Category: u.Category,
 	}
 }
 
