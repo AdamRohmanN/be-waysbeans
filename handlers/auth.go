@@ -2,14 +2,19 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
+	"time"
 	"waysbeans/dto"
 	authdto "waysbeans/dto/auth"
 	"waysbeans/models"
 	"waysbeans/pkg/bcrypt"
+	jwtToken "waysbeans/pkg/jwt"
 	"waysbeans/repositories"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type handlerAuth struct {
@@ -62,5 +67,63 @@ func (h *handlerAuth) Register(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 	res := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseUser(data)}
+	json.NewEncoder(w).Encode(res)
+}
+
+func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	req := new(authdto.LoginRequest)
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		res := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	user := models.User{
+		Email:    req.Email,
+		Password: req.Password,
+	}
+
+	//check email
+	user, err := h.AuthRepository.Login(user.Email)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		res := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	//check password
+	isValid := bcrypt.CheckPasswordHash(req.Password, user.Password)
+	if !isValid {
+		w.WriteHeader(http.StatusBadRequest)
+		res := dto.ErrorResult{Code: http.StatusBadRequest, Message: "wrong email or password"}
+		json.NewEncoder(w).Encode(res)
+		return
+	}
+
+	//generate token
+	claims := jwt.MapClaims{}
+	claims["id"] = user.Id
+	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // 24 hours expired
+
+	token, errGenerateToken := jwtToken.GenerateToken(&claims)
+	if errGenerateToken != nil {
+		log.Println(errGenerateToken)
+		fmt.Println("unauthorized")
+		return
+	}
+
+	loginResponse := authdto.LoginResponse{
+		Name:     user.Name,
+		Email:    user.Email,
+		Password: user.Password,
+		Token:    token,
+	}
+
+	w.WriteHeader(http.StatusOK)
+	res := dto.SuccessResult{Code: http.StatusOK, Data: loginResponse}
 	json.NewEncoder(w).Encode(res)
 }

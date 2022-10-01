@@ -10,6 +10,7 @@ import (
 	"waysbeans/repositories"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gorilla/mux"
 )
 
@@ -71,6 +72,10 @@ func (h *handlerProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
+	// get data user token
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
 	req := new(productdto.ProductRequest)
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
@@ -94,7 +99,7 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		Desc:   req.Desc,
 		Price:  req.Price,
 		Stock:  req.Stock,
-		UserId: req.UserId,
+		UserId: userId,
 	}
 
 	product, err = h.ProductRepository.CreateProduct(product)
