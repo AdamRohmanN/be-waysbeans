@@ -14,6 +14,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+var PATH_IMAGE = "http://localhost:5000/uploads/"
+
 type handlerProduct struct {
 	ProductRepository repositories.ProductRepository
 }
@@ -45,6 +47,10 @@ func (h *handlerProduct) FindProducts(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	for i, p := range products {
+		products[i].Image = PATH_IMAGE + p.Image
+	}
+
 	w.WriteHeader(http.StatusOK)
 	res := dto.SuccessResult{Code: http.StatusOK, Data: products}
 	json.NewEncoder(w).Encode(res)
@@ -64,6 +70,8 @@ func (h *handlerProduct) GetProduct(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	product.Image = PATH_IMAGE + product.Image
+
 	w.WriteHeader(http.StatusOK)
 	res := dto.SuccessResult{Code: http.StatusOK, Data: convertResponseProduct(product)}
 	json.NewEncoder(w).Encode(res)
@@ -76,12 +84,20 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	userId := int(userInfo["id"].(float64))
 
-	req := new(productdto.ProductRequest)
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		res := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
-		json.NewEncoder(w).Encode(res)
-		return
+	// upload image
+	dataContex := r.Context().Value("dataFile")
+	filename := dataContex.(string)
+
+	price, _ := strconv.Atoi(r.FormValue("price"))
+	stock, _ := strconv.Atoi(r.FormValue("stock"))
+	category_id, _ := strconv.Atoi(r.FormValue("category_id"))
+
+	req := productdto.ProductRequest{
+		Name:       r.FormValue("name"),
+		Desc:       r.FormValue("desc"),
+		Price:      price,
+		Stock:      stock,
+		CategoryId: category_id,
 	}
 
 	validation := validator.New()
@@ -94,7 +110,7 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	product := models.Product{
-		Image:  req.Image,
+		Image:  filename,
 		Name:   req.Name,
 		Desc:   req.Desc,
 		Price:  req.Price,
@@ -111,6 +127,8 @@ func (h *handlerProduct) CreateProduct(w http.ResponseWriter, r *http.Request) {
 	}
 
 	product, _ = h.ProductRepository.GetProduct(product.Id)
+
+	product.Image = PATH_IMAGE + product.Image
 
 	w.WriteHeader(http.StatusOK)
 	res := dto.SuccessResult{Code: http.StatusOK, Data: product}
