@@ -33,7 +33,7 @@ func Auth(next http.HandlerFunc) http.HandlerFunc {
 
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
-			res := Result{Code: http.StatusUnauthorized, Message: "unauthorized"}
+			res := dto.ErrorResult{Code: http.StatusUnauthorized, Message: "unauthorized"}
 			json.NewEncoder(w).Encode(res)
 			return
 		}

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"waysbeans/database"
 	"waysbeans/pkg/mysql"
 	"waysbeans/routes"
@@ -26,7 +27,6 @@ func main() {
 
 	r.PathPrefix("/uploads").Handler(http.StripPrefix("/uploads/", http.FileServer(http.Dir("./uploads"))))
 
-	port := "localhost:5000"
-	fmt.Println("server running on " + port)
-	http.ListenAndServe(port, r)
+	fmt.Println("server running on " + os.Getenv("PORT"))
+	http.ListenAndServe(os.Getenv("PORT"), r)
 }
