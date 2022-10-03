@@ -6,6 +6,7 @@ go get github.com/go-playground/validator/v10 <br>
 go get -u github.com/golang-jwt/jwt/v4 <br>
 go get github.com/joho/godotenv <br>
 go get -u github.com/gorilla/handlers <br>
+go get -u gorm.io/driver/postgres <br>
 <br>
 - pkg/mysql/mysql.go before migration.go <br>
 - don't forget database/migration to migrate the tables <br>
