@@ -4,6 +4,7 @@ import "time"
 
 type User struct {
 	Id        int               `json:"id" gorm:"primary_key:auto_increment"`
+	Status    string            `json:"status" gorm:"type: varchar(50)"`
 	Name      string            `json:"name" gorm:"type: varchar(255)"`
 	Email     string            `json:"email" gorm:"type: varchar(255)"`
 	Password  string            `json:"password" gorm:"type: varchar(255)"`
